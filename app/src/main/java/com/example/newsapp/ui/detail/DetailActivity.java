@@ -5,10 +5,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.WebChromeClient; // << Import mới
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ProgressBar; // << Import mới
+import android.widget.ProgressBar;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import com.example.newsapp.R;
@@ -24,66 +25,69 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        // 1. Ánh xạ các view
+        // Ánh xạ các view
         toolbar = findViewById(R.id.toolbar_detail);
         webView = findViewById(R.id.web_view_detail);
         progressBar = findViewById(R.id.progress_bar_detail);
 
-        // 2. Setup Toolbar
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false); // << Tắt tiêu đề mặc định
-        }
+        // Cấu hình Toolbar
+        setupToolbar();
 
-        // 3. Lấy dữ liệu từ Intent
+        // Lấy dữ liệu từ Intent
         Intent intent = getIntent();
         String url = intent.getStringExtra("ARTICLE_URL");
-        String title = intent.getStringExtra("ARTICLE_TITLE"); // << Nhận thêm tiêu đề
+        String title = intent.getStringExtra("ARTICLE_TITLE");
 
-        // 4. Cập nhật tiêu đề trên Toolbar
+        // Cập nhật tiêu đề ban đầu cho Toolbar
         if (title != null) {
             toolbar.setTitle(title);
         }
 
-        // 5. Setup và tải WebView
+        // Cấu hình và tải WebView
         if (url != null && !url.isEmpty()) {
             setupWebView();
             webView.loadUrl(url);
         }
+
+        // Xử lý nút back bằng cách làm mới
+        handleOnBackPressed();
+    }
+
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false); // Tắt tiêu đề mặc định để tự quản lý
+        }
     }
 
     private void setupWebView() {
-        // Bật JavaScript
         webView.getSettings().setJavaScriptEnabled(true);
 
-        // Client này xử lý các sự kiện chính của trang (bắt đầu tải, tải xong, lỗi)
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                progressBar.setVisibility(View.VISIBLE); // Hiển thị ProgressBar khi bắt đầu tải
+                progressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                progressBar.setVisibility(View.GONE); // Ẩn ProgressBar khi tải xong
+                progressBar.setVisibility(View.GONE);
             }
         });
 
-        // Client này xử lý các sự kiện của trình duyệt (tiến trình, thay đổi tiêu đề...)
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
-                progressBar.setProgress(newProgress); // Cập nhật tiến trình của ProgressBar
+                progressBar.setProgress(newProgress);
             }
 
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 super.onReceivedTitle(view, title);
-                // Cập nhật tiêu đề của Toolbar khi trang web cung cấp tiêu đề mới
                 if (title != null && !title.isEmpty()) {
                     toolbar.setTitle(title);
                 }
@@ -91,19 +95,32 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
+    // Xử lý khi người dùng bấm nút back trên Toolbar
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        // Lệnh này sẽ kích hoạt OnBackPressedDispatcher
+        getOnBackPressedDispatcher().onBackPressed();
         return true;
     }
 
-    // Xử lý nút back của điện thoại để quay lại trang trước trong WebView nếu có thể
-    @Override
-    public void onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack(); // Nếu WebView có thể quay lại, thì ưu tiên quay lại trang trước
-        } else {
-            super.onBackPressed(); // Nếu không, thì thoát Activity
-        }
+    // Phương thức mới để xử lý nút back của hệ thống
+    private void handleOnBackPressed() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* Bật mặc định */) {
+            @Override
+            public void handleOnBackPressed() {
+                // Nếu WebView có thể quay lại trang trước, thì ưu tiên làm việc đó
+                if (webView.canGoBack()) {
+                    webView.goBack();
+                } else {
+                    // Nếu không, thì tắt callback này đi để tránh vòng lặp vô hạn
+                    setEnabled(false);
+                    // Và gọi hành động back mặc định (thoát Activity)
+                    // Lưu ý: Cần gọi lại getOnBackPressedDispatcher().onBackPressed() thay vì super.onBackPressed()
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+        // Thêm callback vào dispatcher của Activity
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 }
