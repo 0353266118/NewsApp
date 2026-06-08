@@ -15,9 +15,11 @@
         android:theme="@style/Theme.Newsapp"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ui.detail.DetailActivity"
+            android:name=".ui.search.SearchActivity"
             android:exported="false" />
-        <!-- HomeActivity bây giờ là màn hình chính -->
+        <activity
+            android:name=".ui.detail.DetailActivity"
+            android:exported="false" /> <!-- HomeActivity bây giờ là màn hình chính -->
         <activity
             android:name=".ui.home.HomeActivity"
             android:exported="true"> <!-- Chuyển thành "true" -->

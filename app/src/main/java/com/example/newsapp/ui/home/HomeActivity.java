@@ -18,8 +18,11 @@ import com.bumptech.glide.Glide;
 import com.example.newsapp.R;
 import com.example.newsapp.data.model.Article;
 import com.example.newsapp.ui.detail.DetailActivity;
+import com.example.newsapp.ui.search.SearchActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
+import android.app.ActivityOptions;
+import android.util.Pair;
 
 public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArticleClickListener {
 
@@ -34,7 +37,11 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
     private ImageView ivTrendingImage;
     private TextView tvTrendingCategory, tvTrendingTitle;
     private RecyclerView recyclerViewCategories;
+    private MaterialCardView searchBar;
 
+
+
+    // điểm khởi đầu
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +56,26 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         // Cấu hình các thành phần
         setupRecyclerView();
         setupBottomNav();
+
         observeViewModel();
+        searchBar.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, SearchActivity.class);
+            startActivity(intent);
+        });
+
+
+        searchBar.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, SearchActivity.class);
+
+            // Tạo các tùy chọn cho hiệu ứng chuyển cảnh
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+                    HomeActivity.this,
+                    // Cặp (View, Tên hiệu ứng)
+                    Pair.create(searchBar, "search_transition")
+            );
+
+            startActivity(intent, options.toBundle());
+        });
     }
 
     private void initViews() {
@@ -61,6 +87,7 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         tvTrendingCategory = findViewById(R.id.tv_trending_category);
         tvTrendingTitle = findViewById(R.id.tv_trending_title);
         recyclerViewCategories = findViewById(R.id.recycler_view_categories);
+        searchBar = findViewById(R.id.search_bar);
     }
 
     private void setupRecyclerView() {
@@ -126,7 +153,7 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
             }
         });
 
-        // TODO: Setup cho RecyclerView Categories
+        // TODO: Setup cho RecyclerView Categorie  s
         // setupCategories();
     }
 

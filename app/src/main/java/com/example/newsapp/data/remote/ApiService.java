@@ -6,7 +6,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-// nơi lưu lệnh gọi API
+// bản thiết kế lệnh gọi api
 public interface ApiService {
 
     // GET https://newsapi.org/v2/top-headlines?country=us&apiKey=YOUR_API_KEY

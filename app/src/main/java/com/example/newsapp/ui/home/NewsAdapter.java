@@ -63,8 +63,8 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ArticleViewHol
         // Dùng Glide để tải hình ảnh từ URL
         Glide.with(context)
                 .load(currentArticle.getUrlToImage())
-                .placeholder(R.drawable.ic_launcher_background) // Ảnh hiển thị trong lúc chờ tải
-                .error(R.drawable.ic_launcher_background) // Ảnh hiển thị khi lỗi
+                .placeholder(R.drawable.ic_image_placeholder) // << Ảnh hiển thị trong lúc chờ tải
+                .error(R.drawable.ic_image_error)         // << Ảnh hiển thị khi URL bị null hoặc lỗi
                 .into(holder.imageViewArticle);
     }
 
