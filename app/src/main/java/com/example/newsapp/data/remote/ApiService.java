@@ -9,17 +9,17 @@ import retrofit2.http.Query;
 // bản thiết kế lệnh gọi api
 public interface ApiService {
 
-    // GET https://newsapi.org/v2/top-headlines?country=us&apiKey=YOUR_API_KEY
     @GET("v2/top-headlines")
     Call<NewsResponse> getTopHeadlines(
             @Query("country") String country,
+            @Query("category") String category, // << THÊM THAM SỐ NÀY VÀO
             @Query("apiKey") String apiKey
     );
-    // << THÊM PHƯƠMGM THỨC MỚI ĐỂ TÌM KIẾM >>
-    // GET https://newsapi.org/v2/everything?q=keyword&apiKey=YOUR_API_KEY
+
+    // Phương thức searchForNews vẫn giữ nguyên
     @GET("v2/everything")
     Call<NewsResponse> searchForNews(
-            @Query("q") String keyword, // "q" là tham số cho từ khóa tìm kiếm
+            @Query("q") String keyword,
             @Query("apiKey") String apiKey
     );
 }

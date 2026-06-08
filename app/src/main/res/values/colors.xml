@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="purple_500">#673AB7</color> <!-- Một màu tím đẹp hơn -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="grey_light">#E8EAF6</color> <!-- Màu nền nhạt cho thể loại -->
 </resources>
