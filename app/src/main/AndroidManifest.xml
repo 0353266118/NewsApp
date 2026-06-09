@@ -15,6 +15,12 @@
         android:theme="@style/Theme.Newsapp"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.search.SearchActivity"
             android:exported="false" />
         <activity

@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.newsapp.R;
 import com.example.newsapp.data.model.Article;
+import com.example.newsapp.data.repository.AuthRepository;
+import com.example.newsapp.ui.auth.LoginActivity;
 import com.example.newsapp.ui.detail.DetailActivity;
 import com.example.newsapp.ui.search.SearchActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -44,6 +46,7 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
     private LinearLayout layoutTrending;
     private ViewPager2 viewPagerTrending; // Thêm biến cho ViewPager2
     private TrendingAdapter trendingAdapter; // Thêm biến cho Adapter mới
+    private AuthRepository authRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,8 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         // 3. Cấu hình các thành phần
         setupListeners();
         setupRecyclerViews();
+        authRepository = AuthRepository.getInstance();
+        setupBottomNav();
 
         // 4. Bắt đầu quan sát dữ liệu
         observeViewModel();
@@ -177,5 +182,26 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         } else {
             homeViewModel.fetchNewsByCategory(category);
         }
+    }
+    private void setupBottomNav() {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_home) {
+                return true;
+            } else if (itemId == R.id.navigation_bookmark || itemId == R.id.navigation_profile) {
+                // KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP Ở ĐÂY
+                if (authRepository.getCurrentUser() != null) {
+                    // Nếu đã đăng nhập, mở màn hình tương ứng (sẽ tạo sau)
+                    Toast.makeText(this, "Mở màn hình " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                } else {
+                    // Nếu chưa, yêu cầu đăng nhập
+                    Toast.makeText(this, "Vui lòng đăng nhập để sử dụng chức năng này", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
+                return true;
+            }
+            // ...
+            return false;
+        });
     }
 }
