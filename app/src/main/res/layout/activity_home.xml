@@ -108,6 +108,7 @@
                     android:layout_marginTop="24dp"
                     android:orientation="vertical">
 
+                    <!-- Dòng tiêu đề "Trending" và "See all" (Phần này đúng, giữ nguyên) -->
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
@@ -128,46 +129,17 @@
                             android:textColor="@color/purple_500" />
                     </RelativeLayout>
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/card_trending"
+                    <!-- ViewPager2 chỉ là một cái khung rỗng, không có gì bên trong -->
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/view_pager_trending"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="200dp"
                         android:layout_marginTop="16dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <ImageView
-                                android:id="@+id/iv_trending_image"
-                                android:layout_width="match_parent"
-                                android:layout_height="200dp"
-                                android:scaleType="centerCrop"
-                                tools:src="@tools:sample/backgrounds/scenic" />
-                            <TextView
-                                android:id="@+id/tv_trending_category"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="12dp"
-                                android:layout_marginTop="12dp"
-                                android:textColor="@android:color/darker_gray"
-                                tools:text="Europe" />
-                            <TextView
-                                android:id="@+id/tv_trending_title"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="12dp"
-                                android:layout_marginEnd="12dp"
-                                android:layout_marginBottom="12dp"
-                                android:ellipsize="end"
-                                android:maxLines="2"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                tools:text="Russian warship: Moskva sinks in Black Sea" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+                        android:clipToPadding="false"
+                        android:clipChildren="false"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"/>
+
                 </LinearLayout>
 
                 <!-- KHU VỰC 4: LATEST (THỂ LOẠI) -->

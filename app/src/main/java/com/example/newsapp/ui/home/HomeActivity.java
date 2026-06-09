@@ -24,6 +24,7 @@ import com.example.newsapp.ui.detail.DetailActivity;
 import com.example.newsapp.ui.search.SearchActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.List;
 
@@ -41,6 +42,8 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
     private ImageView ivTrendingImage;
     private TextView tvTrendingCategory, tvTrendingTitle;
     private LinearLayout layoutTrending;
+    private ViewPager2 viewPagerTrending; // Thêm biến cho ViewPager2
+    private TrendingAdapter trendingAdapter; // Thêm biến cho Adapter mới
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,22 +72,24 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         searchBar = findViewById(R.id.search_bar);
 
         // Views của khu vực Trending
+        viewPagerTrending = findViewById(R.id.view_pager_trending); // Ánh xạ ViewPager2
         layoutTrending = findViewById(R.id.layout_trending);
-        cardTrending = findViewById(R.id.card_trending);
-        ivTrendingImage = findViewById(R.id.iv_trending_image);
-        tvTrendingCategory = findViewById(R.id.tv_trending_category);
-        tvTrendingTitle = findViewById(R.id.tv_trending_title);
+//        cardTrending = findViewById(R.id.card_trending);
+//        ivTrendingImage = findViewById(R.id.iv_trending_image);
+//        tvTrendingCategory = findViewById(R.id.tv_trending_category);
+//        tvTrendingTitle = findViewById(R.id.tv_trending_title);
     }
 
     private void setupListeners() {
         // Sự kiện click cho thanh tìm kiếm
         searchBar.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, SearchActivity.class);
-            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
-                    HomeActivity.this,
-                    Pair.create(searchBar, "search_transition")
-            );
-            startActivity(intent, options.toBundle());
+//            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+//                    HomeActivity.this,
+//                    Pair.create(searchBar, "search_transition")
+//            );
+//            startActivity(intent, options.toBundle());
+            startActivity(intent);
         });
 
         // Sự kiện cho Bottom Navigation
@@ -111,6 +116,8 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         // Setup cho RecyclerView thể loại
         recyclerViewCategories.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         // << 3. KHÔNG gán adapter ở đây nữa, vì chúng ta chưa có dữ liệu
+        trendingAdapter = new TrendingAdapter(this); // `this` vì HomeActivity implement OnArticleClickListener
+        viewPagerTrending.setAdapter(trendingAdapter);
     }
 
     private void observeViewModel() {
@@ -120,15 +127,10 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         });
 
         // Observer cho tin tức Trending
-        homeViewModel.getTrendingNewsLiveData().observe(this, article -> {
-            if (article != null) {
+        homeViewModel.getTrendingNewsLiveData().observe(this, articles -> {
+            if (articles != null && !articles.isEmpty()) {
                 layoutTrending.setVisibility(View.VISIBLE);
-                tvTrendingTitle.setText(article.getTitle());
-                if (article.getSource() != null) {
-                    tvTrendingCategory.setText(article.getSource().getName());
-                }
-                Glide.with(this).load(article.getUrlToImage()).into(ivTrendingImage);
-                cardTrending.setOnClickListener(v -> onArticleClick(article));
+                trendingAdapter.setTrendingArticles(articles); // Đưa danh sách vào adapter mới
             } else {
                 layoutTrending.setVisibility(View.GONE);
             }

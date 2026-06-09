@@ -3,15 +3,19 @@ package com.example.newsapp.ui.home;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import com.example.newsapp.data.model.Article;
+import com.example.newsapp.data.model.NewsResponse;
 import com.example.newsapp.data.repository.NewsRepository;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeViewModel extends ViewModel {
 
     private NewsRepository newsRepository;
-    private MutableLiveData<Article> trendingNewsLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<Article>> trendingNewsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Article>> latestNewsLiveData = new MutableLiveData<>();
     private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private MutableLiveData<List<String>> categoriesLiveData = new MutableLiveData<>();
@@ -23,7 +27,7 @@ public class HomeViewModel extends ViewModel {
     }
 
     // --- Getters cho Activity quan sát ---
-    public LiveData<Article> getTrendingNewsLiveData() { return trendingNewsLiveData; }
+    public LiveData<List<Article>> getTrendingNewsLiveData() { return trendingNewsLiveData; }
     public LiveData<List<Article>> getLatestNewsLiveData() { return latestNewsLiveData; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<List<String>> getCategoriesLiveData() { return categoriesLiveData; }
@@ -32,17 +36,31 @@ public class HomeViewModel extends ViewModel {
 
     // Lấy tin tức chung (trang chủ)
     public void fetchTopHeadlines() {
-        isLoading.postValue(true);
-        // Mặc định gọi tin tức chung (category là null)
-        newsRepository.getTopHeadlines("us", null).observeForever(newsResponse -> {
-            if (newsResponse != null && newsResponse.getArticles() != null && !newsResponse.getArticles().isEmpty()) {
-                trendingNewsLiveData.postValue(newsResponse.getArticles().get(0));
-                latestNewsLiveData.postValue(newsResponse.getArticles().subList(1, newsResponse.getArticles().size()));
-            } else {
-                trendingNewsLiveData.postValue(null);
-                latestNewsLiveData.postValue(null);
+        isLoading.setValue(true);
+        LiveData<NewsResponse> response = newsRepository.getTopHeadlines("us", null);
+        response.observeForever(new Observer<NewsResponse>() {
+            @Override
+            public void onChanged(NewsResponse newsResponse) {
+                if (newsResponse != null && newsResponse.getArticles() != null && !newsResponse.getArticles().isEmpty()) {
+
+                    // Lấy 5 bài báo đầu tiên cho Trending
+                    int trendingCount = Math.min(5, newsResponse.getArticles().size());
+                    trendingNewsLiveData.setValue(newsResponse.getArticles().subList(0, trendingCount));
+
+                    // Lấy phần còn lại cho Latest
+                    if (newsResponse.getArticles().size() > 5) {
+                        latestNewsLiveData.setValue(newsResponse.getArticles().subList(5, newsResponse.getArticles().size()));
+                    } else {
+                        latestNewsLiveData.setValue(new ArrayList<>()); // Trả về danh sách rỗng nếu không còn
+                    }
+
+                } else {
+                    trendingNewsLiveData.setValue(null);
+                    latestNewsLiveData.setValue(null);
+                }
+                isLoading.setValue(false);
+                response.removeObserver(this);
             }
-            isLoading.postValue(false);
         });
     }
 
