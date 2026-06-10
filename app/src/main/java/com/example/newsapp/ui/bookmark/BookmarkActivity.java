@@ -13,15 +13,15 @@ import com.example.newsapp.R;
 import com.example.newsapp.data.model.Article;
 import com.example.newsapp.ui.detail.DetailActivity;
 import com.example.newsapp.ui.home.HomeActivity;
+import com.example.newsapp.ui.home.OnArticleClickListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.io.Serializable;
 
-// Implement interface của BookmarkAdapter
-public class BookmarkActivity extends AppCompatActivity implements BookmarkAdapter.OnArticleClickListener {
+public class BookmarkActivity extends AppCompatActivity implements OnArticleClickListener {
 
     private BookmarkViewModel bookmarkViewModel;
     private RecyclerView recyclerViewBookmarks;
-    private BookmarkAdapter bookmarkAdapter; // Sử dụng adapter mới
+    private BookmarkAdapter bookmarkAdapter; // Sử dụng adapter riêng
     private BottomNavigationView bottomNavigationView;
 
     @Override
@@ -29,17 +29,11 @@ public class BookmarkActivity extends AppCompatActivity implements BookmarkAdapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bookmark);
 
-        // 1. Khởi tạo ViewModel
         bookmarkViewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
 
-        // 2. Ánh xạ Views
         initViews();
-
-        // 3. Cấu hình các thành phần
         setupRecyclerView();
         setupBottomNav();
-
-        // 4. Bắt đầu quan sát dữ liệu
         observeViewModel();
     }
 
@@ -49,7 +43,7 @@ public class BookmarkActivity extends AppCompatActivity implements BookmarkAdapt
     }
 
     private void setupRecyclerView() {
-        // Tạo và gán BookmarkAdapter mới
+        // Tạo và gán BookmarkAdapter riêng biệt
         bookmarkAdapter = new BookmarkAdapter(this);
         bookmarkAdapter.setOnArticleClickListener(this);
         recyclerViewBookmarks.setLayoutManager(new LinearLayoutManager(this));
@@ -57,26 +51,31 @@ public class BookmarkActivity extends AppCompatActivity implements BookmarkAdapt
     }
 
     private void setupBottomNav() {
-        // Đánh dấu icon Bookmark là đang được chọn
+        // Đánh dấu icon Bookmark là đang được chọn khi mở màn hình
         bottomNavigationView.setSelectedItemId(R.id.navigation_bookmark);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.navigation_bookmark) {
-                // Đang ở màn hình này rồi, không làm gì cả
-                return true;
-            } else if (itemId == R.id.navigation_home) {
+
+            // Nếu bấm vào tab đang được chọn, không làm gì cả
+            if (itemId == bottomNavigationView.getSelectedItemId()) {
+                return false;
+            }
+
+            if (itemId == R.id.navigation_home) {
                 // Quay về Home
                 Intent intent = new Intent(BookmarkActivity.this, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                // Các flag này để đảm bảo không tạo ra một HomeActivity mới nếu nó đã tồn tại
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 // Thêm overridePendingTransition để tắt hiệu ứng chuyển cảnh, tạo cảm giác như chuyển tab
                 overridePendingTransition(0, 0);
-                return true;
+                return true; // Trả về true để BottomNav cập nhật item được chọn
             }
-            // Các tab khác có thể hiển thị Toast
+
+            // Với các tab khác, tạm thời không làm gì
             Toast.makeText(this, "Chức năng này sẽ được phát triển sau", Toast.LENGTH_SHORT).show();
-            return true;
+            return false; // Trả về false để không chọn các tab chưa có chức năng
         });
     }
 
@@ -86,8 +85,10 @@ public class BookmarkActivity extends AppCompatActivity implements BookmarkAdapt
                 Log.d("BookmarkActivity", "Số lượng bookmark nhận được: " + bookmarks.size());
                 // Khi có danh sách bookmark mới từ Firestore, cập nhật lên BookmarkAdapter
                 bookmarkAdapter.setArticles(bookmarks);
+                // TODO: Thêm logic hiển thị thông báo "Danh sách trống" nếu bookmarks.isEmpty()
             } else {
                 Log.e("BookmarkActivity", "Lỗi khi lấy bookmarks, danh sách là null.");
+                // TODO: Thêm logic hiển thị thông báo lỗi
             }
         });
     }
@@ -95,8 +96,15 @@ public class BookmarkActivity extends AppCompatActivity implements BookmarkAdapt
     @Override
     public void onArticleClick(Article article) {
         Intent intent = new Intent(this, DetailActivity.class);
-        // Đảm bảo Article đã implement Serializable
+        // Gửi cả đối tượng Article đi, ép kiểu thành Serializable
         intent.putExtra("ARTICLE_OBJECT", (Serializable) article);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Tắt hiệu ứng chuyển cảnh khi thoát khỏi Activity này
+        overridePendingTransition(0, 0);
     }
 }

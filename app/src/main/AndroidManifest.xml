@@ -15,6 +15,15 @@
         android:theme="@style/Theme.Newsapp"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.profile.ChangePasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.ProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.bookmark.BookmarkActivity"
             android:exported="false" />
         <activity

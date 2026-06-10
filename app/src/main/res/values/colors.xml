@@ -4,4 +4,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey_light">#E8EAF6</color> <!-- Màu nền nhạt cho thể loại -->
+    <color name="movi_borderColor">#E5E5E5</color>
+    <color name="movi_buttonColor">#6A5AE0</color>"
+    <color name="movie_banner_background">#6A5AE0</color> <!-- Nền tím của banner -->
 </resources>

@@ -17,9 +17,9 @@ import java.util.List;
 public class TrendingAdapter extends RecyclerView.Adapter<TrendingAdapter.TrendingViewHolder> {
 
     private List<Article> trendingArticles = new ArrayList<>();
-    private NewsAdapter.OnArticleClickListener listener; // Tái sử dụng interface từ NewsAdapter
+    private final OnArticleClickListener listener; // << SỬ DỤNG INTERFACE CHUNG
 
-    public TrendingAdapter(NewsAdapter.OnArticleClickListener listener) {
+    public TrendingAdapter(OnArticleClickListener listener) {
         this.listener = listener;
     }
 
@@ -71,7 +71,10 @@ public class TrendingAdapter extends RecyclerView.Adapter<TrendingAdapter.Trendi
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
-                    listener.onArticleClick(article);
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        listener.onArticleClick(trendingArticles.get(position));
+                    }
                 }
             });
         }

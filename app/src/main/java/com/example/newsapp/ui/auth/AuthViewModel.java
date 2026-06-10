@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.example.newsapp.data.repository.AuthRepository;
+import com.example.newsapp.utils.AuthResource;
 import com.google.firebase.auth.FirebaseUser;
 
 public class AuthViewModel extends ViewModel {
@@ -46,26 +47,3 @@ public class AuthViewModel extends ViewModel {
     }
 }
 
-// Lớp tiện ích để quản lý trạng thái, rất hữu ích
-class AuthResource<T> {
-    public enum AuthStatus { SUCCESS, ERROR, LOADING }
-    public final AuthStatus status;
-    public final T data;
-    public final String message;
-
-    private AuthResource(AuthStatus status, T data, String message) {
-        this.status = status;
-        this.data = data;
-        this.message = message;
-    }
-
-    public static <T> AuthResource<T> success(T data) {
-        return new AuthResource<>(AuthStatus.SUCCESS, data, null);
-    }
-    public static <T> AuthResource<T> error(String msg) {
-        return new AuthResource<>(AuthStatus.ERROR, null, msg);
-    }
-    public static <T> AuthResource<T> loading() {
-        return new AuthResource<>(AuthStatus.LOADING, null, null);
-    }
-}
