@@ -151,8 +151,15 @@ public class SearchActivity extends AppCompatActivity implements NewsAdapter.OnA
     @Override
     public void onArticleClick(Article article) {
         Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("ARTICLE_URL", article.getUrl());
-        intent.putExtra("ARTICLE_TITLE", article.getTitle());
+
+        // << THAY ĐỔI CÁCH GỬI DỮ LIỆU >>
+        // Xóa 2 dòng cũ:
+        // intent.putExtra("ARTICLE_URL", article.getUrl());
+        // intent.putExtra("ARTICLE_TITLE", article.getTitle());
+
+        // Thêm dòng mới: Gửi cả đối tượng Article
+        intent.putExtra("ARTICLE_OBJECT", article);
+
         startActivity(intent);
     }
 }

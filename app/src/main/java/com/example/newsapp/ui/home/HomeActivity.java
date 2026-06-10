@@ -22,6 +22,7 @@ import com.example.newsapp.R;
 import com.example.newsapp.data.model.Article;
 import com.example.newsapp.data.repository.AuthRepository;
 import com.example.newsapp.ui.auth.LoginActivity;
+import com.example.newsapp.ui.bookmark.BookmarkActivity;
 import com.example.newsapp.ui.detail.DetailActivity;
 import com.example.newsapp.ui.search.SearchActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -47,6 +48,7 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
     private ViewPager2 viewPagerTrending; // Thêm biến cho ViewPager2
     private TrendingAdapter trendingAdapter; // Thêm biến cho Adapter mới
     private AuthRepository authRepository;
+    private TextView tvGreeting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,21 +81,15 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         // Views của khu vực Trending
         viewPagerTrending = findViewById(R.id.view_pager_trending); // Ánh xạ ViewPager2
         layoutTrending = findViewById(R.id.layout_trending);
-//        cardTrending = findViewById(R.id.card_trending);
-//        ivTrendingImage = findViewById(R.id.iv_trending_image);
-//        tvTrendingCategory = findViewById(R.id.tv_trending_category);
-//        tvTrendingTitle = findViewById(R.id.tv_trending_title);
+
+        tvGreeting = findViewById(R.id.tv_greeting);
     }
 
     private void setupListeners() {
         // Sự kiện click cho thanh tìm kiếm
         searchBar.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, SearchActivity.class);
-//            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
-//                    HomeActivity.this,
-//                    Pair.create(searchBar, "search_transition")
-//            );
-//            startActivity(intent, options.toBundle());
+
             startActivity(intent);
         });
 
@@ -161,14 +157,33 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
                 }
             }
         });
+        // << THÊM OBSERVER MỚI CHO TRẠNG THÁI NGƯỜI DÙNG >>
+        homeViewModel.getUserLiveData().observe(this, firebaseUser -> {
+            if (firebaseUser != null) {
+                // Nếu có người dùng, hiển thị lời chào
+                String displayName = firebaseUser.getDisplayName();
+                String email = firebaseUser.getEmail();
+
+                // Ưu tiên hiển thị tên, nếu không có thì hiển thị phần đầu của email
+                String greetingName = (displayName != null && !displayName.isEmpty()) ? displayName : email.split("@")[0];
+
+                tvGreeting.setText("Hello, " + greetingName + "!");
+                tvGreeting.setVisibility(View.VISIBLE);
+            } else {
+                // Nếu không có người dùng, ẩn lời chào đi
+                tvGreeting.setVisibility(View.GONE);
+            }
+        });
+
     }
 
     // Xử lý sự kiện click vào bài báo
     @Override
     public void onArticleClick(Article article) {
         Intent intent = new Intent(HomeActivity.this, DetailActivity.class);
-        intent.putExtra("ARTICLE_URL", article.getUrl());
-        intent.putExtra("ARTICLE_TITLE", article.getTitle());
+
+        intent.putExtra("ARTICLE_OBJECT", article);
+
         startActivity(intent);
     }
 
@@ -184,15 +199,18 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
         }
     }
     private void setupBottomNav() {
+        // Đảm bảo icon Home đang được chọn
+        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_home) {
                 return true;
-            } else if (itemId == R.id.navigation_bookmark || itemId == R.id.navigation_profile) {
-                // KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP Ở ĐÂY
+            } else if (itemId == R.id.navigation_bookmark) {
+                // KIỂM TRA ĐĂNG NHẬP
                 if (authRepository.getCurrentUser() != null) {
-                    // Nếu đã đăng nhập, mở màn hình tương ứng (sẽ tạo sau)
-                    Toast.makeText(this, "Mở màn hình " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                    // Nếu đã đăng nhập, mở BookmarkActivity
+                    startActivity(new Intent(this, BookmarkActivity.class));
                 } else {
                     // Nếu chưa, yêu cầu đăng nhập
                     Toast.makeText(this, "Vui lòng đăng nhập để sử dụng chức năng này", Toast.LENGTH_SHORT).show();
@@ -200,7 +218,7 @@ public class HomeActivity extends AppCompatActivity implements NewsAdapter.OnArt
                 }
                 return true;
             }
-            // ...
+            // ... các tab khác
             return false;
         });
     }

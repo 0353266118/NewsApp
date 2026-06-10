@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:titleTextColor="@android:color/white"
+
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -42,7 +42,5 @@
             android:visibility="gone"
             tools:visibility="visible"
             tools:progress="50"/>
-
     </FrameLayout>
-
 </LinearLayout>

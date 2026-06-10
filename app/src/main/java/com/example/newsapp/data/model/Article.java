@@ -3,8 +3,10 @@ package com.example.newsapp.data.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 // model cho bài báo
-public class Article {
+public class Article implements Serializable {
     @SerializedName("source")
     private Source source;
 

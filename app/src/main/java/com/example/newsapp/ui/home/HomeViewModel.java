@@ -7,14 +7,22 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import com.example.newsapp.data.model.Article;
 import com.example.newsapp.data.model.NewsResponse;
+import com.example.newsapp.data.repository.AuthRepository;
 import com.example.newsapp.data.repository.NewsRepository;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import androidx.lifecycle.Observer;
+import java.util.ArrayList;
 
 public class HomeViewModel extends ViewModel {
 
     private NewsRepository newsRepository;
+    // << 1. KHAI BÁO CÁC BIẾN CÒN THIẾU Ở ĐÂY >>
+    private AuthRepository authRepository;
+    private LiveData<FirebaseUser> userLiveData;
+
     private MutableLiveData<List<Article>> trendingNewsLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Article>> latestNewsLiveData = new MutableLiveData<>();
     private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
@@ -22,6 +30,8 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         newsRepository = NewsRepository.getInstance();
+        authRepository = AuthRepository.getInstance(); // Dòng này giờ sẽ hết lỗi
+        userLiveData = authRepository.getUserLiveData(); // Dòng này giờ sẽ hết lỗi
         fetchTopHeadlines();
         fetchCategories();
     }
@@ -31,6 +41,10 @@ public class HomeViewModel extends ViewModel {
     public LiveData<List<Article>> getLatestNewsLiveData() { return latestNewsLiveData; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<List<String>> getCategoriesLiveData() { return categoriesLiveData; }
+    // Cung cấp LiveData người dùng cho Activity
+    public LiveData<FirebaseUser> getUserLiveData() {
+        return userLiveData;
+    }
 
     // --- Các phương thức hành động ---
 

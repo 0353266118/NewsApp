@@ -46,6 +46,17 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:src="@tools:sample/avatars" />
+                    <TextView
+                        android:id="@+id/tv_greeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:visibility="gone"
+                        tools:text="Hello, User!"
+                        tools:visibility="visible"/>
 
                     <ImageView
                         android:id="@+id/iv_notification"
@@ -65,7 +76,7 @@
                     android:transitionName="search_transition"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="8dp"
                     app:cardCornerRadius="8dp"
                     app:strokeColor="#E0E0E0"
                     app:strokeWidth="1dp">
