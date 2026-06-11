@@ -112,8 +112,13 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
                 navigateTo(BookmarkActivity.class);
             } else if (itemId == R.id.navigation_profile) {
                 navigateTo(ProfileActivity.class);
-            } else if (itemId == R.id.navigation_explore) {
-                Toast.makeText(this, "Explore feature is coming soon!", Toast.LENGTH_SHORT).show();
+            }
+//            } else if (itemId == R.id.navigation_explore) {
+//                Toast.makeText(this, "Explore feature is coming soon!", Toast.LENGTH_SHORT).show();
+//            }
+            else if (itemId == R.id.navigation_explore) {
+                // SỬA DÒNG TOAST CŨ THÀNH LỆNH CHUYỂN ACTIVITY NÀY:
+                navigateTo(com.example.newsapp.ui.explore.ExploreActivity.class);
             }
             return false;
         });
