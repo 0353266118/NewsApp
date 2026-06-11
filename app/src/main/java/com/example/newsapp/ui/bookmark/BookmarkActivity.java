@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,9 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.newsapp.R;
 import com.example.newsapp.data.model.Article;
 import com.example.newsapp.ui.detail.DetailActivity;
-import com.example.newsapp.ui.home.HomeActivity;
 import com.example.newsapp.ui.home.OnArticleClickListener;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.Serializable;
 import java.util.List;
@@ -28,7 +26,7 @@ public class BookmarkActivity extends AppCompatActivity implements OnArticleClic
     private BookmarkViewModel bookmarkViewModel;
     private RecyclerView recyclerViewBookmarks;
     private BookmarkAdapter bookmarkAdapter;
-    private BottomNavigationView bottomNavigationView;
+    private ImageView btnBack; // Thay đổi từ BottomNav sang ImageView
     private ProgressBar progressBar;
     private TextView tvMessage;
 
@@ -41,13 +39,13 @@ public class BookmarkActivity extends AppCompatActivity implements OnArticleClic
 
         initViews();
         setupRecyclerView();
-        setupBottomNav();
+        setupNavigation(); // Thiết lập sự kiện nút Back thay cho BottomNav cũ
         observeViewModel();
     }
 
     private void initViews() {
         recyclerViewBookmarks = findViewById(R.id.recycler_view_bookmarks);
-        bottomNavigationView = findViewById(R.id.bottom_navigation_bookmark);
+        btnBack = findViewById(R.id.btn_back_bookmark); // Ánh xạ nút Back
         progressBar = findViewById(R.id.progress_bar_bookmark);
         tvMessage = findViewById(R.id.tv_bookmark_message);
     }
@@ -59,26 +57,11 @@ public class BookmarkActivity extends AppCompatActivity implements OnArticleClic
         recyclerViewBookmarks.setAdapter(bookmarkAdapter);
     }
 
-    private void setupBottomNav() {
-        bottomNavigationView.setSelectedItemId(R.id.navigation_bookmark);
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.navigation_bookmark) {
-                return false;
-            }
-
-            if (itemId == R.id.navigation_home) {
-                Intent intent = new Intent(BookmarkActivity.this, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-                overridePendingTransition(0, 0);
-                return true;
-            }
-
-            Toast.makeText(this, "Chức năng này sẽ được phát triển sau", Toast.LENGTH_SHORT).show();
-            return false;
+    private void setupNavigation() {
+        // Khi bấm vào mũi tên, kết thúc Activity này để tự động quay lại HomeActivity dưới Stack
+        btnBack.setOnClickListener(v -> {
+            finish();
+            overridePendingTransition(0, 0); // Giữ hiệu ứng chuyển mượt mà
         });
     }
 
@@ -90,7 +73,7 @@ public class BookmarkActivity extends AppCompatActivity implements OnArticleClic
 
             if (bookmarks == null) {
                 Log.e("BookmarkActivity", "Lỗi khi lấy bookmarks từ Firestore.");
-                showErrorState("Error loading bookmarks. Please check your connection or Firestore rules.");
+                showErrorState("Error loading bookmarks. Please check your connection.");
                 return;
             }
 
@@ -135,15 +118,10 @@ public class BookmarkActivity extends AppCompatActivity implements OnArticleClic
         startActivity(intent);
     }
 
-    // THAY ĐỔI TẠI HÀM ONRESUME ĐỂ LÀM MỚI DANH SÁCH TỰ ĐỘNG
     @Override
     protected void onResume() {
         super.onResume();
-        if (bottomNavigationView != null) {
-            bottomNavigationView.setSelectedItemId(R.id.navigation_bookmark);
-        }
-
-        // ÉP APP GỌI FIRESTORE LẤY DATA MỚI KHI QUAY LẠI TAB NÀY
+        // Đã loại bỏ các lệnh setup vị trí nút BottomNav ở đây
         if (bookmarkViewModel != null) {
             showLoadingState();
             bookmarkViewModel.fetchBookmarks();

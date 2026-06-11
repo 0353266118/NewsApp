@@ -92,6 +92,10 @@ public class NewsRepository {
             success.postValue(false);
             return;
         }
+
+        // THÊM DÒNG NÀY: Ghi nhận thời gian lưu bằng miligiây hệ thống
+        article.setBookmarkedAt(System.currentTimeMillis());
+
         String documentId = String.valueOf(article.getUrl().hashCode());
         db.collection("users").document(userId)
                 .collection("bookmarks").document(documentId)
@@ -130,7 +134,8 @@ public class NewsRepository {
         }
         db.collection("users").document(userId)
                 .collection("bookmarks")
-                .get() // << THAY ĐỔI QUAN TRỌNG
+                .orderBy("bookmarkedAt", com.google.firebase.firestore.Query.Direction.DESCENDING) // << THÊM LỆNH XẾP GIẢM DẦN
+                .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Article> bookmarks = new ArrayList<>();
                     if (queryDocumentSnapshots != null) {

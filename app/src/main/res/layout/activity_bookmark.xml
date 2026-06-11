@@ -7,33 +7,43 @@
     android:background="@android:color/white"
     tools:context=".ui.bookmark.BookmarkActivity">
 
-    <!-- Thanh tiêu đề "Bookmark" -->
+    <ImageView
+        android:id="@+id/btn_back_bookmark"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:padding="12dp"
+        android:src="@android:drawable/ic_menu_revert" android:contentDescription="Back"
+        app:layout_constraintBottom_toBottomOf="@id/tv_bookmark_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_bookmark_title" />
+
     <TextView
         android:id="@+id/tv_bookmark_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="8dp"
         android:text="Bookmark"
         android:textColor="@android:color/black"
-        android:textSize="28sp"
+        android:textSize="25sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_back_bookmark"
         app:layout_constraintTop_toTopOf="parent" />
 
-
-    <!-- FrameLayout để quản lý các trạng thái UI: RecyclerView, ProgressBar, TextView -->
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_bookmark"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_bookmark_title">
 
-        <!-- Danh sách các bài báo đã lưu -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_bookmarks"
             android:layout_width="match_parent"
@@ -42,11 +52,9 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:visibility="gone"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_article"
             tools:visibility="visible" />
 
-        <!-- Vòng xoay Loading -->
         <ProgressBar
             android:id="@+id/progress_bar_bookmark"
             android:layout_width="wrap_content"
@@ -55,7 +63,6 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
-        <!-- Thông báo cho người dùng (danh sách trống hoặc lỗi) -->
         <TextView
             android:id="@+id/tv_bookmark_message"
             android:layout_width="wrap_content"
@@ -70,16 +77,5 @@
             tools:visibility="visible" />
 
     </FrameLayout>
-
-    <!-- Thanh điều hướng dưới cùng -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation_bookmark"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
