@@ -1,4 +1,3 @@
-// File: ui/home/HomeActivity.java
 package com.example.newsapp.ui.home;
 
 import android.app.ActivityOptions;
@@ -6,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-import com.bumptech.glide.Glide;
 import com.example.newsapp.R;
 import com.example.newsapp.data.model.Article;
 import com.example.newsapp.data.repository.AuthRepository;
@@ -29,7 +26,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 import java.io.Serializable;
 import java.util.List;
-import com.example.newsapp.ui.home.OnArticleClickListener;
 
 public class HomeActivity extends AppCompatActivity implements OnArticleClickListener, CategoryAdapter.OnCategoryClickListener {
 
@@ -40,7 +36,6 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
     private ProgressBar progressBar;
     private AuthRepository authRepository;
 
-    // Các view trên màn hình
     private RecyclerView recyclerViewNews, recyclerViewCategories;
     private BottomNavigationView bottomNavigationView;
     private MaterialCardView searchBar;
@@ -58,7 +53,7 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
 
         initViews();
         setupRecyclerViews();
-        setupListeners(); // Đổi vị trí setupListeners và setupBottomNav
+        setupListeners();
         setupBottomNav();
         observeViewModel();
     }
@@ -66,9 +61,6 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
     @Override
     protected void onResume() {
         super.onResume();
-        // Khi quay lại màn hình này, luôn đảm bảo tab Home được chọn
-        // để tránh trường hợp người dùng bấm back từ Bookmark/Profile về
-        // mà tab cũ vẫn sáng.
         if (bottomNavigationView != null) {
             bottomNavigationView.setSelectedItemId(R.id.navigation_home);
         }
@@ -97,26 +89,22 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
     }
 
     private void setupRecyclerViews() {
-        // Setup cho RecyclerView tin tức chính (Latest)
         newsAdapter = new NewsAdapter(this);
         newsAdapter.setOnArticleClickListener(this);
         recyclerViewNews.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewNews.setNestedScrollingEnabled(false);
         recyclerViewNews.setAdapter(newsAdapter);
 
-        // Setup cho RecyclerView thể loại
         recyclerViewCategories.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        // Setup cho ViewPager2 Trending
         trendingAdapter = new TrendingAdapter(this);
         viewPagerTrending.setAdapter(trendingAdapter);
     }
 
     private void setupBottomNav() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            // Chỉ xử lý khi người dùng bấm vào một tab KHÁC tab Home
             if (item.getItemId() == R.id.navigation_home) {
-                return true; // Đã ở Home rồi, không làm gì cả
+                return true;
             }
 
             int itemId = item.getItemId();
@@ -127,17 +115,21 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
             } else if (itemId == R.id.navigation_explore) {
                 Toast.makeText(this, "Explore feature is coming soon!", Toast.LENGTH_SHORT).show();
             }
-
-            // Trả về false để không hiển thị hiệu ứng chọn item trên BottomNav
-            // Vì chúng ta sẽ chuyển sang Activity mới, không ở lại đây
             return false;
         });
     }
 
-    // Hàm tiện ích để điều hướng, có kiểm tra đăng nhập
+    // SỬA ĐỔI PHƯƠNG THỨC ĐIỀU HƯỚNG ĐỂ TRAO ĐỔI ACTIVITY TRONG STACK AN TOÀN
     private void navigateTo(Class<?> activityClass) {
         if (authRepository.getCurrentUser() != null) {
-            startActivity(new Intent(this, activityClass));
+            Intent intent = new Intent(this, activityClass);
+
+            // Mang thực thể Activity cũ lên trước thay vì tạo mới đè lên RAM
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+
+            // Khử hiệu ứng lướt trang để chuyển đổi Tab tự nhiên như Fragment
+            overridePendingTransition(0, 0);
         } else {
             Toast.makeText(this, "Please login to use this feature", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, LoginActivity.class));
@@ -145,12 +137,10 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
     }
 
     private void observeViewModel() {
-        // Observer cho trạng thái loading
         homeViewModel.getIsLoading().observe(this, isLoading -> {
             progressBar.setVisibility(isLoading != null && isLoading ? View.VISIBLE : View.GONE);
         });
 
-        // Observer cho tin tức Trending
         homeViewModel.getTrendingNewsLiveData().observe(this, articles -> {
             if (articles != null && !articles.isEmpty()) {
                 layoutTrending.setVisibility(View.VISIBLE);
@@ -160,14 +150,12 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
             }
         });
 
-        // Observer cho danh sách tin tức Latest
         homeViewModel.getLatestNewsLiveData().observe(this, articles -> {
             if (articles != null) {
                 newsAdapter.setArticles(articles);
             }
         });
 
-        // Observer cho danh sách thể loại
         homeViewModel.getCategoriesLiveData().observe(this, categories -> {
             if (categories != null && !categories.isEmpty()) {
                 if (categoryAdapter == null) {
@@ -177,7 +165,6 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
             }
         });
 
-        // Observer cho trạng thái người dùng
         homeViewModel.getUserLiveData().observe(this, firebaseUser -> {
             if (firebaseUser != null) {
                 String displayName = firebaseUser.getDisplayName();
@@ -200,11 +187,38 @@ public class HomeActivity extends AppCompatActivity implements OnArticleClickLis
 
     @Override
     public void onCategoryClick(String category) {
-        Toast.makeText(this, "Loading news for: " + category, Toast.LENGTH_SHORT).show();
-        if (category.equalsIgnoreCase("All")) {
-            homeViewModel.fetchTopHeadlines();
-        } else {
-            homeViewModel.fetchNewsByCategory(category);
+        String keywordToSearch = category;
+
+        switch (category.toLowerCase()) {
+            case "all":
+                Toast.makeText(this, "Đang tải tin tức chung", Toast.LENGTH_SHORT).show();
+                homeViewModel.fetchTopHeadlines();
+                return;
+
+            case "business":
+                keywordToSearch = "kinh doanh";
+                break;
+            case "entertainment":
+                keywordToSearch = "giải trí";
+                break;
+            case "general":
+                keywordToSearch = "xã hội";
+                break;
+            case "health":
+                keywordToSearch = "sức khỏe";
+                break;
+            case "science":
+                keywordToSearch = "khoa học";
+                break;
+            case "sports":
+                keywordToSearch = "thể thao";
+                break;
+            case "technology":
+                keywordToSearch = "công nghệ";
+                break;
         }
+
+        Toast.makeText(this, "Tìm tin tức về: " + keywordToSearch, Toast.LENGTH_SHORT).show();
+        homeViewModel.searchNews(keywordToSearch);
     }
 }

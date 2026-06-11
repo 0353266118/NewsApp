@@ -28,6 +28,17 @@ public class Article implements Serializable {
     @SerializedName("publishedAt")
     private String publishedAt;
 
+    @SerializedName("bookmarkedAt")
+    private long bookmarkedAt;
+    // Thêm getter và setter
+    public long getBookmarkedAt() {
+        return bookmarkedAt;
+    }
+
+    public void setBookmarkedAt(long bookmarkedAt) {
+        this.bookmarkedAt = bookmarkedAt;
+    }
+
     // --- Bấm Alt + Insert (hoặc chuột phải -> Generate) -> Getters and Setters để tạo nhanh các hàm dưới đây ---
     public Source getSource() { return source; }
     public void setSource(Source source) { this.source = source; }
